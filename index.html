@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cargar..</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #custom-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+    }
+
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+
+    .logo-inka {
+      height: 70px;
+    }
+
+    .logo-cinedom {
+      height: 45px;
+      max-width: 110px;
+    }
+
+    .neon-x {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+    }
+
+    .bottom-section {
+      position: absolute;
+      bottom: 40px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .text {
+      font-size: 16px;
+      color: white;
+      margin-bottom: 10px;
+      text-align: center;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      background-color: #444;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-indicator {
+      position: absolute;
+      height: 100%;
+      width: 30%;
+      background-color: #00f7ff;
+      animation: loading 2s infinite;
+      left: -30%;
+    }
+
+    @keyframes loading {
+      0% { left: -30%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    /* TÉRMINOS Y CONDICIONES */
+    #custom-terms {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      z-index: 9999;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #custom-terms.show {
+      display: flex;
+    }
+
+    .terms-box {
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .terms-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .accept-btn {
+      background-color: #00c853;
+      color: white;
+    }
+
+    .decline-btn {
+      background-color: #d32f2f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- PANTALLA DE CARGA -->
+  <div id="custom-container">
+    <div class="logos">
+      <!-- Logo InkaFlix -->
+      <img src="https://raw.githubusercontent.com/inkaflix/API/main/logo.png" alt="InkaFlix" class="logo-inka">
+
+      <!-- X SVG -->
+      <svg class="neon-x" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20" y1="20" x2="80" y2="80" stroke="url(#grad1)" stroke-width="10" stroke-linecap="round"/>
+        <line x1="80" y1="20" x2="20" y2="80" stroke="url(#grad1)" stroke-width="10" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#ff00ff;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#00f7ff;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <!-- Logo CineDom -->
+      <img src="https://cinedom.pro/static/img/logo-1737139010.png" alt="CineDom" class="logo-cinedom">
+    </div>
+
+    <div class="bottom-section">
+      <div class="text" id="custom-statusText">Buscando actualizaciones...</div>
+      <div class="progress-bar">
+        <div class="progress-indicator"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TÉRMINOS Y CONDICIONES -->
+  <div id="custom-terms">
+    <div class="terms-box">
+      <h3>Términos y Condiciones</h3>
+      <p>Al continuar, aceptas los términos del servicio de esta aplicación.</p>
+    </div>
+    <div class="terms-buttons">
+      <button class="accept-btn" onclick="acceptTerms()">Aceptar</button>
+      <button class="decline-btn" onclick="declineTerms()">No aceptar</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const aceptarURL = "https://inkahome2.netlify.app/";
+      const rechazarURL = "https://www.google.com";
+
+      const statusText = document.getElementById("custom-statusText");
+      const mainScreen = document.getElementById("custom-container");
+      const termsScreen = document.getElementById("custom-terms");
+
+      setTimeout(() => {
+        statusText.style.opacity = 0;
+        setTimeout(() => {
+          statusText.textContent = "No se encontraron actualizaciones";
+          statusText.style.opacity = 1;
+        }, 1000);
+      }, 5000);
+
+      setTimeout(() => {
+        if (localStorage.getItem("termsAccepted") !== "yes") {
+          mainScreen.style.display = "none";
+          termsScreen.classList.add("show");
+        } else {
+          window.location.href = aceptarURL;
+        }
+      }, 7000);
+
+      window.acceptTerms = function () {
+        localStorage.setItem("termsAccepted", "yes");
+        window.location.href = aceptarURL;
+      };
+
+      window.declineTerms = function () {
+        window.location.href = rechazarURL;
+      };
+    })();
+  </script>
+</body>
+</html>
